@@ -1,1 +1,25 @@
-
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration-rollback
+  annotations:
+    argocd.argoproj.io/hook: SyncFail
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: rollback
+          image: busybox
+          command:
+            - "sh"
+            - "-c"
+            - |
+              echo 'Migration failed — starting rollback...'
+              # Replace this with your real rollback command e.g:
+              # python manage.py migrate myapp 0042  (Django)
+              # flyway undo                           (Flyway)
+              # liquibase rollbackCount 1             (Liquibase)
+              echo 'Rollback complete.'
