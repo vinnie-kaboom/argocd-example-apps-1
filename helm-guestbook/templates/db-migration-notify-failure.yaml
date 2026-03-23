@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration-notify-failure
+  annotations:
+    argocd.argoproj.io/hook: SyncFail
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: notify
+          image: curlimages/curl:latest
+          command:
+            - "sh"
+            - "-c"
+            - |
+              echo 'Sending failure notification to webhook.site...'
+              curl -s -X POST "https://webhook.site/your-unique-id-here" \
+                -H 'Content-Type: application/json' \
+                --data '{
+                  "status": "FAILED",
+                  "job": "db-migration-job",
+                  "hook": "PreSync",
+                  "message": "DB migration failed. ArgoCD sync halted. Manual intervention required.",
+                  "severity": "CRITICAL"
+                }'
+              echo 'Notification sent.'
