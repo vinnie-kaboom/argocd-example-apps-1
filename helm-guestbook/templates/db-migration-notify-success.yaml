@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration-notify-success
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+spec:
+  backoffLimit: 1
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: notify
+          image: curlimages/curl:latest
+          command:
+            - "sh"
+            - "-c"
+            - |
+              echo 'Sending success notification to webhook.site...'
+              curl -s -X POST "https://webhook.site/7b5dc4fa-a874-44f9-9cf7-4276f759157c" \
+                -H 'Content-Type: application/json' \
+                --data '{
+                  "status": "SUCCESS",
+                  "job": "db-migration-job",
+                  "hook": "PostSync",
+                  "message": "DB migration completed successfully. ArgoCD sync finished.",
+                  "severity": "INFO"
+                }'
+              echo 'Notification sent.'
