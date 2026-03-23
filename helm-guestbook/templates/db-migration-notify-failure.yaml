@@ -18,7 +18,7 @@ spec:
             - "-c"
             - |
               echo 'Sending failure notification to webhook.site...'
-              curl -s -X POST "https://webhook.site/your-unique-id-here" \
+              curl -s -X POST "https://webhook.site/c62c7e2e-8aab-4870-ac3b-cf833cf997bf" \
                 -H 'Content-Type: application/json' \
                 --data '{
                   "status": "FAILED",
